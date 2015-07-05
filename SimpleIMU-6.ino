@@ -14,7 +14,7 @@
 MPU6050 MPU(400, 0, 3, 3); // update rate, filtering, gyro, accel
 
 
-Quat RotationQuat;
+Quat AttitudeEstimateQuat;
 
 Vec3 correction_Body, correction_World;
 Vec3 Accel_Body, Accel_World;
@@ -53,29 +53,29 @@ void loop() // Start Main Loop
 		GyroVec  = Vector(MPU.gX, MPU.gY, MPU.gZ);	// move gyro data to vector structure
 		Accel_Body = Vector(MPU.aX, MPU.aY, MPU.aZ);	// move accel data to vector structure
 
-		Accel_World = Rotate(RotationQuat, Accel_Body); // rotate accel from body frame to world frame
+		Accel_World = Rotate(AttitudeEstimateQuat, Accel_Body); // rotate accel from body frame to world frame
 
 		correction_World = CrossProd(Accel_World, VERTICAL); // cross product to determine error
 
-    Vec3 correction_Body = Rotate(correction_World, RotationQuat); // rotate correction vector to body frame
+		Vec3 correction_Body = Rotate(correction_World, AttitudeEstimateQuat); // rotate correction vector to body frame
 
 		GyroVec = Sum(GyroVec, correction_Body);  // add correction vector to gyro data
 
-    Quat incrementalRotation = Quaternion(GyroVec, MPU.samplePeriod);  // create incremental rotation quat
-    
-		RotationQuat = Mul(incrementalRotation, RotationQuat);  // quaternion integration (rotation composting through multiplication)
+		Quat incrementalRotation = Quaternion(GyroVec, MPU.samplePeriod);  // create incremental rotation quat
+
+		AttitudeEstimateQuat = Mul(incrementalRotation, AttitudeEstimateQuat);  // quaternion integration (rotation composting through multiplication)
 
 	}
 	else if(Timer2Hz())	// only display data 2x per second
 	{
 
-    Vec3 YPR = YawPitchRoll(RotationQuat);
+    Vec3 YPR = YawPitchRoll(AttitudeEstimateQuat);
     Serial.print("  Yaw:");   Serial.print(_DEGREES(-YPR.x), 2);
     Serial.print("  Pitch:"); Serial.print(_DEGREES(-YPR.y), 2);
     Serial.print("  Roll:");Serial.println(_DEGREES(-YPR.z), 2);
 
     
-  	//display(RotationQuat);
+  	//display(AttitudeEstimateQuat);
     //display(GyroVec);
     //display(AccelVec);
 	}
