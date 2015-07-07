@@ -69,15 +69,15 @@ void loop() // Start Main Loop
 	else if(Timer2Hz())	// only display data 2x per second
 	{
 
-    Vec3 YPR = YawPitchRoll(AttitudeEstimateQuat);
-    Serial.print("  Yaw:");   Serial.print(_DEGREES(-YPR.x), 2);
-    Serial.print("  Pitch:"); Serial.print(_DEGREES(-YPR.y), 2);
-    Serial.print("  Roll:");Serial.println(_DEGREES(-YPR.z), 2);
+		Vec3 YPR = YawPitchRoll(AttitudeEstimateQuat);
+		Serial.print("  Yaw:");   Serial.print(_DEGREES(-YPR.x), 2);
+		Serial.print("  Pitch:"); Serial.print(_DEGREES(-YPR.y), 2);
+		Serial.print("  Roll:");Serial.println(_DEGREES(-YPR.z), 2);
 
     
-  	//display(AttitudeEstimateQuat);
-    //display(GyroVec);
-    //display(AccelVec);
+ 		//display(AttitudeEstimateQuat);
+		//display(GyroVec);
+		//display(AccelVec);
 	}
 
 } // Main Loop End
