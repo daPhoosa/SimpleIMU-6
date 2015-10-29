@@ -7,11 +7,14 @@
 #include <Wire.h>
 #include <MPU6050.h>
 #include <Math3D.h>
-#include <PollTimers.h>
+#include <PollTimer.h>
 
 #define _DEGREES(x) (57.29578 * x)
 
 MPU6050 MPU(400, 0, 3, 3); // update rate, filtering, gyro, accel
+
+PollTimer RateLoopTimer(400UL);
+PollTimer MaintenanceLoop(2UL);
 
 
 Quat AttitudeEstimateQuat;
@@ -38,14 +41,15 @@ void setup() {
 	MPU.gyroZero();	  // generate and store gyro bias offsets
 
 
-	while(Timer400Hz());	// catch timer up
-	while(Timer2Hz());	// catch timer up
+	RateLoopTimer.start();
+	MaintenanceLoop.start();
+	
 }
 
 void loop() // Start Main Loop
 {
 
-	if(Timer400Hz())  // check if it is time for next sensor sample, 400Hz
+	if(RateLoopTimer.check())  // check if it is time for next sensor sample, 400Hz
 	{
 
 		MPU.retrieve();	   // get data from the sensor
@@ -66,7 +70,7 @@ void loop() // Start Main Loop
 		AttitudeEstimateQuat = Mul(incrementalRotation, AttitudeEstimateQuat);  // quaternion integration (rotation composting through multiplication)
 
 	}
-	else if(Timer2Hz())	// only display data 2x per second
+	else if(MaintenanceLoop.check())	// only display data 2x per second
 	{
 
 		Vec3 YPR = YawPitchRoll(AttitudeEstimateQuat);
@@ -74,8 +78,8 @@ void loop() // Start Main Loop
 		Serial.print("  Pitch:"); Serial.print(_DEGREES(-YPR.y), 2);
 		Serial.print("  Roll:");Serial.println(_DEGREES(-YPR.z), 2);
 
-    
- 		//display(AttitudeEstimateQuat);
+
+		//display(AttitudeEstimateQuat);
 		//display(GyroVec);
 		//display(AccelVec);
 	}
